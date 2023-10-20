@@ -2,7 +2,7 @@ import pygame
 import random
 pygame.font.init()
 
-W,H=750,750
+W,H=600,600
 window=pygame.display.set_mode((W,H))
 pygame.display.set_caption('OWASP Stops Aliens')
 
@@ -45,10 +45,11 @@ class Ship:
         self.x=x
         self.y=y
         self.health=health
-        self.shipImg=Enemy1
+        self.shipImg=Enemy2
         self.laserImg=None
         self.lasers = []
         self.stopShooting = 0
+        
     def draw(self,window):
         window.blit(self.shipImg,(self.x,self.y))
         # pygame.draw.rect(window,(255,0,0),(self.x,self.y,50,50))
@@ -57,6 +58,7 @@ class Ship:
         return self.shipImg.get_width()
     def height(self):
         return self.shipImg.get_height()
+    
 class owaspTiet(Ship):
     def __init__(self,x,y,health=100):
         super().__init__(x,y,health)
@@ -71,7 +73,7 @@ class Enemy(Ship):
             "green": (Enemy2,green),
             "blue": (Enemy3,blue)
             }
-    def _init_(self,x,y,color,health=100):
+    def __init__(self,x,y,color,health=100):
         super().__init__(x,y,health)
         self.shipImg,self.laserImg=self.shipMap[color]
         self.mask=pygame.mask.from_surface(self.shipImg)
@@ -90,7 +92,7 @@ def main():
     enemies=[]
     wave_length=5
     enemyVel=1
-    player=owaspTiet(300,650)
+    player=owaspTiet((W/2)-(Player.get_width()/2),H*7/8-Player.get_height())
     clk=pygame.time.Clock()
     lost=False
     lost_count=0
@@ -132,19 +134,23 @@ def main():
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
                 return False
+            
         keys=pygame.key.get_pressed()
         if keys[pygame.K_a] and player.x-velocity>0:
             player.x-=velocity #Left-a
         if keys[pygame.K_LEFT] and player.x-velocity>0:
             player.x-=velocity #Left-left arrow
+
         if keys[pygame.K_d] and player.x +velocity<W-player.width():
             player.x+=velocity #Right-d
         if keys[pygame.K_RIGHT] and player.x +velocity<W-player.width():
             player.x+=velocity #Right-right arrow
+
         if keys[pygame.K_w] and player.y-velocity>0:
             player.y-=velocity #Up-w
         if keys[pygame.K_UP] and player.y-velocity>0:
             player.y-=velocity #Up-up arrow
+
         if keys[pygame.K_s] and player.y+velocity<H-player.height():
             player.y+=velocity #Down-s
         if keys[pygame.K_DOWN] and player.y+velocity<H-player.height():
