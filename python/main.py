@@ -95,7 +95,18 @@ class owaspTiet(Ship):
         self.mask = pygame.mask.from_surface(self.shipImg)
         self.maxHealth=health
 
-        
+    def moveLasers(self, vel, objs):
+        self.cooldown_counter()
+        for laser in self.lasers:
+            laser.move(vel)
+            if laser.off_screen(H):
+                self.lasers.remove(laser)
+            else:
+                for obj in objs:
+                    if laser.collision(obj):
+                        objs.remove(obj)
+                        self.lasers.remove(laser)
+
 
 
 class Enemy(Ship):
