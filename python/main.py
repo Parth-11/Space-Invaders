@@ -7,7 +7,7 @@ window=pygame.display.set_mode((W,H))
 pygame.display.set_caption('OWASP Stops Aliens')
 
 Enemy1=pygame.transform.scale(pygame.image.load("python/characters/PngItem_490764.png"),(90,90))
-Enemy2=pygame.transform.scale(pygame.image.load("python/characters/PngItem_851324.png"),(90,90))
+Enemy2=pygame.transform.scale(pygame.image.load("python/characters/PngItem_851324.png"),(45,90))
 Enemy3=pygame.transform.scale(pygame.image.load("python/characters/pngwing.com.png"),(90,90))
 
 
@@ -45,7 +45,7 @@ class Ship:
         self.x=x
         self.y=y
         self.health=health
-        self.shipImg=Enemy1  #doesnt work with None--why?
+        self.shipImg=Enemy1
         self.laserImg=None
         self.lasers = []
         self.stopShooting = 0
@@ -123,9 +123,9 @@ def main():
                 continue
         if len(enemies)==0:
             level+=1
-            wave_length+=5
+            wave_length+=1
             for i in range(wave_length):
-                enemy=Enemy(random.randrange(50,W-100),random.randrange(-1000,-500),random.choice(["red","blue","green"]))
+                enemy=Enemy(random.randrange(50,W-100),random.randrange(-400,-100),random.choice(["red","blue","green"]))
 
                 enemies.append(enemy)
 
