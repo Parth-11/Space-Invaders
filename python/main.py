@@ -6,20 +6,20 @@ W,H=750,750
 window=pygame.display.set_mode((W,H))
 pygame.display.set_caption('OWASP Stops Aliens')
 
-Enemy1=pygame.transform.scale(pygame.image.load("characters/PngItem_490764.png"),(90,90))
-Enemy2=pygame.transform.scale(pygame.image.load("characters/PngItem_851324.png"),(90,90))
-Enemy3=pygame.transform.scale(pygame.image.load("characters/pngwing.com.png"),(90,90))
+Enemy1=pygame.transform.scale(pygame.image.load("python/characters/PngItem_490764.png"),(90,90))
+Enemy2=pygame.transform.scale(pygame.image.load("python/characters/PngItem_851324.png"),(90,90))
+Enemy3=pygame.transform.scale(pygame.image.load("python/characters/pngwing.com.png"),(90,90))
 
 
-Player=pygame.image.load("characters/Player.png")
+Player=pygame.image.load("python/characters/Player.png")
 
 #Lasers
-red = pygame.image.load("characters/pixel_laser_red.png")
-green = pygame.image.load("characters/pixel_laser_green.png")
-blue = pygame.image.load("characters/pixel_laser_blue.png")
-yellow = pygame.image.load("characters/pixel_laser_yellow.png")
+red = pygame.image.load("python/characters/pixel_laser_red.png")
+green = pygame.image.load("python/characters/pixel_laser_green.png")
+blue = pygame.image.load("python/characters/pixel_laser_blue.png")
+yellow = pygame.image.load("python/characters/pixel_laser_yellow.png")
 
-bg=pygame.transform.scale(pygame.image.load("characters/background.jpeg"),(W,H))
+bg=pygame.transform.scale(pygame.image.load("python/characters/background.jpeg"),(W,H))
 
 class Laser:
     def __init__(self, x, y, img):
