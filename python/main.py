@@ -2,7 +2,7 @@ import pygame
 import random
 pygame.font.init()
 
-W,H=750,750
+W,H=600,600
 window=pygame.display.set_mode((W,H))
 pygame.display.set_caption('OWASP Stops Aliens')
 
@@ -35,28 +35,58 @@ class Laser:
         self.y+=vel
 
     def off_screen(self,height):
-        return self.y<=height and self.y>=0
+        return not (self.y<=height and self.y>=0)
     
-    #def collision(self, obj):
-        #return collide(self, obj)
+    def collision(self, obj):
+        return collide(self, obj)
     
 class Ship:
+    INTERVAL=30
     def __init__(self,x,y,health=100):
         self.x=x
         self.y=y
         self.health=health
-        self.shipImg=Enemy1
+        self.shipImg=None
         self.laserImg=None
         self.lasers = []
-        self.stopShooting = 0
+        self.coolDown = 0
+        
     def draw(self,window):
         window.blit(self.shipImg,(self.x,self.y))
         # pygame.draw.rect(window,(255,0,0),(self.x,self.y,50,50))
+        for laser in self.lasers:
+            laser.draw(window)
+
+    def moveLasers(self, vel, obj):
+        self.cooldown_counter()
+        for laser in self.lasers:
+            laser.move(vel)
+            if laser.off_screen(H):
+                self.lasers.remove(laser)
+            elif Laser.collision(self,obj):
+                obj.health -=10
+                self.lasers.remove(laser)
 
     def width(self):
         return self.shipImg.get_width()
     def height(self):
         return self.shipImg.get_height()
+    
+    def cooldown_counter(self):
+        if self.coolDown>=self.INTERVAL:
+            self.coolDown=0
+        elif self.coolDown>0:
+            self.coolDown+=1
+
+    def shoot(self):
+        if self.coolDown==0:
+            laser=Laser(self.x, self.y, self.laserImg)
+            self.lasers.append(laser)
+            self.coolDown=1
+
+
+
+    
 class owaspTiet(Ship):
     def __init__(self,x,y,health=100):
         super().__init__(x,y,health)
@@ -65,19 +95,38 @@ class owaspTiet(Ship):
         self.mask = pygame.mask.from_surface(self.shipImg)
         self.maxHealth=health
 
+    def moveLasers(self, vel, objs):
+        self.cooldown_counter()
+        for laser in self.lasers:
+            laser.move(vel)
+            if laser.off_screen(H):
+                self.lasers.remove(laser)
+            else:
+                for obj in objs:
+                    if laser.collision(obj):
+                        objs.remove(obj)
+                        self.lasers.remove(laser)
+
+
+
 class Enemy(Ship):
     shipMap={
             "red": (Enemy1,red),
             "green": (Enemy2,green),
             "blue": (Enemy3,blue)
             }
-    def _init_(self,x,y,color,health=100):
+    def __init__(self,x,y,color,health=100):
         super().__init__(x,y,health)
         self.shipImg,self.laserImg=self.shipMap[color]
         self.mask=pygame.mask.from_surface(self.shipImg)
 
     def move(self,velocity):
         self.y+=velocity
+
+def collide(obj1, obj2):
+    offset_x=obj2.x-obj1.x
+    offset_y=obj2.y-obj1.y
+    return obj1.mask.overlap(obj2.mask, (offset_x,offset_y)) != None
 
 def main():
     run=True
@@ -90,7 +139,8 @@ def main():
     enemies=[]
     wave_length=5
     enemyVel=1
-    player=owaspTiet(300,650)
+    laserVel=5
+    player=owaspTiet((W/2)-(Player.get_width()/2),H*7/8-Player.get_height())
     clk=pygame.time.Clock()
     lost=False
     lost_count=0
@@ -104,9 +154,10 @@ def main():
             for enemy in enemies:
                 enemy.draw(window)
             player.draw(window)
+
             if lost:
                 lost_label = lost_font.render("You Lost!!", 1, (255,255,255))
-                window.blit(lost_label, (W/2 - lost_label.get_width()/2, 350))
+                window.blit(lost_label, (W/2 - lost_label.get_width()/2, H/2-lost_label.get_height()/2))
             pygame.display.update()
 
     while run:
@@ -132,30 +183,39 @@ def main():
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
                 return False
+            
         keys=pygame.key.get_pressed()
         if keys[pygame.K_a] and player.x-velocity>0:
             player.x-=velocity #Left-a
         if keys[pygame.K_LEFT] and player.x-velocity>0:
             player.x-=velocity #Left-left arrow
+
         if keys[pygame.K_d] and player.x +velocity<W-player.width():
             player.x+=velocity #Right-d
         if keys[pygame.K_RIGHT] and player.x +velocity<W-player.width():
             player.x+=velocity #Right-right arrow
+
         if keys[pygame.K_w] and player.y-velocity>0:
             player.y-=velocity #Up-w
         if keys[pygame.K_UP] and player.y-velocity>0:
             player.y-=velocity #Up-up arrow
+
         if keys[pygame.K_s] and player.y+velocity<H-player.height():
             player.y+=velocity #Down-s
         if keys[pygame.K_DOWN] and player.y+velocity<H-player.height():
             player.y+=velocity #Down-down arrow
+        if keys[pygame.K_SPACE]:
+            player.shoot()
+
 
         for enemy in enemies[:]:
             enemy.move(enemyVel)
+            enemy.moveLasers(laserVel,player)
             if enemy.y + enemy.height()>H:
                 lives-=1
                 enemies.remove(enemy)
 
+        player.moveLasers(-laserVel,enemies)
         window_update()
 
 main()
