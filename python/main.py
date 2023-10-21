@@ -258,10 +258,7 @@ def main():
             
 
         player.moveLasers(-laserVel,enemies)
-        for laser in player.lasers:
-                for enemy in enemies:
-                    if collide(laser,enemy):
-                        score+=5
+        
                 
         window_update()
 
