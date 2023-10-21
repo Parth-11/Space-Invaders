@@ -41,7 +41,7 @@ class Laser:
         return collide(self, obj)
     
 class Ship:
-    INTERVAL=30
+    INTERVAL=30  #30 milliseconds for cooldown
     def __init__(self,x,y,health=100):
         self.x=x
         self.y=y
@@ -50,6 +50,7 @@ class Ship:
         self.laserImg=None
         self.lasers = []
         self.coolDown = 0
+        self.score=0
         
     def draw(self,window):
         window.blit(self.shipImg,(self.x,self.y))
@@ -106,7 +107,14 @@ class owaspTiet(Ship):
                     if laser.collision(obj):
                         objs.remove(obj)
                         self.lasers.remove(laser)
+                        self.score+=5
+                        
 
+    def shoot(self):
+        if self.coolDown==0:
+            laser=Laser(self.x-5, self.y, self.laserImg)
+            self.lasers.append(laser)
+            self.coolDown=1
 
 
 class Enemy(Ship):
@@ -123,6 +131,12 @@ class Enemy(Ship):
     def move(self,velocity):
         self.y+=velocity
 
+    def shoot(self):
+        if self.coolDown==0:
+            laser=Laser(self.x-5, self.y, self.laserImg)
+            self.lasers.append(laser)
+            self.coolDown=1   
+
 def collide(obj1, obj2):
     offset_x=obj2.x-obj1.x
     offset_y=obj2.y-obj1.y
@@ -131,28 +145,40 @@ def collide(obj1, obj2):
 def main():
     run=True
     FPS=60
+
     level = 0
     lives=5
     velocity=4
-    fonti=pygame.font.SysFont('stencil',40)
+
+    fonti=pygame.font.SysFont('stencil',30)
     lost_font = pygame.font.SysFont("stencil", 60)
+
     enemies=[]
     wave_length=5
     enemyVel=1
+
     laserVel=5
+
     player=owaspTiet((W/2)-(Player.get_width()/2),H*7/8-Player.get_height())
+
     clk=pygame.time.Clock()
+
     lost=False
     lost_count=0
+
+    
 
     def window_update():
             window.blit(bg, (0, 0))
             livesCount=fonti.render(f"Lives: {lives}",1,(255,255,255))
             levelCount=fonti.render(f"Levels: {level}",1,(255,255,255))
+            score_label=fonti.render(f"Score: {player.score}",1,(255,255,255))
             window.blit(livesCount,(10,10))
             window.blit(levelCount,(W-levelCount.get_width()-10,10))
+            window.blit(score_label,(W/2-score_label.get_width()/2,10))
             for enemy in enemies:
                 enemy.draw(window)
+
             player.draw(window)
 
             if lost:
@@ -172,12 +198,12 @@ def main():
                 run = False
             else:
                 continue
+
         if len(enemies)==0:
             level+=1
             wave_length+=1
             for i in range(wave_length):
                 enemy=Enemy(random.randrange(50,W-100),random.randrange(-400,-100),random.choice(["red","blue","green"]))
-
                 enemies.append(enemy)
 
         for event in pygame.event.get():
@@ -204,18 +230,39 @@ def main():
             player.y+=velocity #Down-s
         if keys[pygame.K_DOWN] and player.y+velocity<H-player.height():
             player.y+=velocity #Down-down arrow
-        if keys[pygame.K_SPACE]:
+
+        if keys[pygame.K_SPACE]: 
             player.shoot()
+            
 
 
         for enemy in enemies[:]:
             enemy.move(enemyVel)
             enemy.moveLasers(laserVel,player)
-            if enemy.y + enemy.height()>H:
+
+            if random.randrange(0,4*60)==1:
+                enemy.shoot()
+            
+            if collide(enemy,player):
+                player.health -=10
+                enemies.remove(enemy)
+            elif enemy.y + enemy.height()>H:
                 lives-=1
                 enemies.remove(enemy)
+                
+           
+            
+
+            
+
+            
 
         player.moveLasers(-laserVel,enemies)
+        for laser in player.lasers:
+                for enemy in enemies:
+                    if collide(laser,enemy):
+                        score+=5
+                
         window_update()
 
 main()
