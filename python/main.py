@@ -136,8 +136,10 @@ class Enemy(Ship):
         self.shipImg,self.laserImg=self.shipMap[color]
         self.mask=pygame.mask.from_surface(self.shipImg)
 
-    def move(self,velocity):
+    def move(self,velocity,level):
         self.y+=velocity
+        #if level>5:
+            #self.x+=velocity
 
     def shoot(self):
         if self.coolDown==0:
@@ -174,6 +176,9 @@ def main():
     lost=False
     lost_count=0
 
+    level_inc=False
+    level_time=0
+
 
     def window_update():
             #bg,lives,level,score display
@@ -196,6 +201,11 @@ def main():
                 lost_label = lost_font.render("You Lost!!", 1, (255,255,255))
                 window.blit(lost_label, (W/2 - lost_label.get_width()/2, H/2-lost_label.get_height()/2))
 
+            #level text display
+            if level_inc and level!=1:
+                level_label = lost_font.render("Level Up!",1,(255,255,255))
+                window.blit(level_label, (W/2 - level_label.get_width()/2, H/2-level_label.get_height()/2))
+
             pygame.display.update()
 
     while run:
@@ -212,9 +222,20 @@ def main():
             else:
                 continue
 
+        #if level increases,show level screen for 2 seconds
+        if level_inc and level!=1:
+            level_time+=1
+            if level_time>FPS:
+                level_inc=False
+                level_time=0
+            else:
+                continue
+
         #Enemy spawn
         if len(enemies)==0:
             level+=1
+            if level!=1:
+                level_inc=True
             wave_length+=1
             for i in range(wave_length):
                 enemy=Enemy(random.randrange(50,W-100),random.randrange(-400,-100),random.choice(["red","blue","green"]))
@@ -252,7 +273,7 @@ def main():
 
         #for enemy and enemy laser movement
         for enemy in enemies[:]:
-            enemy.move(enemyVel)
+            enemy.move(enemyVel,level)
             enemy.moveLasers(laserVel,player)
 
             if random.randrange(0,4*60)==1:
