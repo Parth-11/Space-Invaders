@@ -222,7 +222,7 @@ def main():
             else:
                 continue
 
-        #if level increases,show level screen for 2 seconds
+        #if level increases,show level screen for 1 second
         if level_inc and level!=1:
             level_time+=1
             if level_time>FPS:
