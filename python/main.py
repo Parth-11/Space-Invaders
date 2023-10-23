@@ -185,11 +185,13 @@ def main():
     heart_display=False
     heart_time=0
 
+    n_level=False
+
     def window_update():
             #bg,lives,level,score display
             window.blit(bg, (0, 0))
             livesCount=fonti.render(f"Lives: {lives}",1,(255,255,255))
-            levelCount=fonti.render(f"Levels: {level}",1,(255,255,255))
+            levelCount=fonti.render(f"Level: {level}",1,(255,255,255))
             score_label=fonti.render(f"Score: {player.score}",1,(255,255,255))
             window.blit(livesCount,(10,10))
             window.blit(levelCount,(W-levelCount.get_width()-10,10))
@@ -212,7 +214,8 @@ def main():
                 level_label = lost_font.render("Level Up!",1,(255,255,255))
                 window.blit(level_label, (W/2 - level_label.get_width()/2, H/2-level_label.get_height()/2))
 
-            
+            #if heart_display and heart_time>0 and level==2:
+            #   window.blit(heart,(W/2,H/2))
             
             pygame.display.update()
 
@@ -236,14 +239,31 @@ def main():
             if level_time>FPS:
                 level_inc=False
                 level_time=0
+
             else:
                 continue
+
+        #display heart for 3 seconds at level 3 only (yet)
+
+
+        """"
+        if heart_display and level==2 and level_inc==False:
+            heart_time+=1
+            if heart_time>FPS*3:
+                heart_display=False
+                heart_time=0
+            else:
+                continue
+        """
+        
 
         #Enemy spawn
         if len(enemies)==0:
             level+=1
+            heart_display=True
             if level!=1:
                 level_inc=True
+
             wave_length+=1
             for i in range(wave_length):
                 enemy=Enemy(random.randrange(50,W-100),random.randrange(-400,-100),random.choice(["red","blue","green"]))
