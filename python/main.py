@@ -22,6 +22,9 @@ yellow = pygame.image.load("python/characters/pixel_laser_yellow.png")
 #Background
 bg=pygame.transform.scale(pygame.image.load("python/characters/background.jpeg"),(W,H))
 
+#heart icon
+heart=pygame.transform.scale(pygame.image.load("python/characters/revival.png"),(35,35))
+
 #Laser class--To display and move lasers on screen,handle collisions with ships
 class Laser:
     def __init__(self, x, y, img):
@@ -179,6 +182,8 @@ def main():
     level_inc=False
     level_time=0
 
+    heart_display=False
+    heart_time=0
 
     def window_update():
             #bg,lives,level,score display
@@ -189,6 +194,7 @@ def main():
             window.blit(livesCount,(10,10))
             window.blit(levelCount,(W-levelCount.get_width()-10,10))
             window.blit(score_label,(W/2-score_label.get_width()/2,10))
+        
 
             #enemy and player display
             for enemy in enemies:
@@ -206,6 +212,8 @@ def main():
                 level_label = lost_font.render("Level Up!",1,(255,255,255))
                 window.blit(level_label, (W/2 - level_label.get_width()/2, H/2-level_label.get_height()/2))
 
+            
+            
             pygame.display.update()
 
     while run:
@@ -287,7 +295,6 @@ def main():
 
         #player laser
         player.moveLasers(-laserVel,enemies)
-
         window_update()
 
 main()
