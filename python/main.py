@@ -5,11 +5,12 @@ pygame.font.init()
 #Window
 W,H=600,600
 window=pygame.display.set_mode((W,H))
+#window=pygame.display.set_mode((600,600), pygame.RESIZABLE)--->to make window resizable
 pygame.display.set_caption('OWASP Stops Aliens')
 
 #Load ships
 Enemy1=pygame.transform.scale(pygame.image.load("python/characters/PngItem_490764.png"),(90,90))
-Enemy2=pygame.transform.scale(pygame.image.load("python/characters/PngItem_851324.png"),(45,90))
+Enemy2=pygame.transform.scale(pygame.image.load("python/characters/PngItem_851324.png"),(60,120))
 Enemy3=pygame.transform.scale(pygame.image.load("python/characters/pngwing.com.png"),(90,90))
 Player=pygame.image.load("python/characters/Player.png")
 
@@ -187,6 +188,8 @@ def main():
 
     def window_update():
             #bg,lives,level,score display
+            #W,H=window.get_size()---->new W,H for resizable window
+            #bg=pygame.transform.scale(pygame.image.load("python/characters/background.jpeg"),(W,H))--->to resize bg
             window.blit(bg, (0, 0))
             livesCount=fonti.render(f"Lives: {lives}",1,(255,255,255))
             levelCount=fonti.render(f"Levels: {level}",1,(255,255,255))
@@ -194,7 +197,6 @@ def main():
             window.blit(livesCount,(10,10))
             window.blit(levelCount,(W-levelCount.get_width()-10,10))
             window.blit(score_label,(W/2-score_label.get_width()/2,10))
-        
 
             #enemy and player display
             for enemy in enemies:
@@ -212,8 +214,8 @@ def main():
                 level_label = lost_font.render("Level Up!",1,(255,255,255))
                 window.blit(level_label, (W/2 - level_label.get_width()/2, H/2-level_label.get_height()/2))
 
-            
-            
+
+
             pygame.display.update()
 
     while run:
