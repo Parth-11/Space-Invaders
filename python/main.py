@@ -22,7 +22,8 @@ blue = pygame.image.load("python/characters/pixel_laser_blue.png")
 yellow = pygame.image.load("python/characters/pixel_laser_yellow.png")
 
 #Background
-bg=pygame.transform.scale(pygame.image.load("python/characters/background.jpeg"),(W,H))
+bg=pygame.transform.scale(pygame.image.load("python/characters/starry-sky.jpg"),(W,H))
+bg2 = pygame.transform.scale(pygame.image.load("python/characters/background.jpeg"),(W,H))
 
 #heart icon
 heart=pygame.transform.scale(pygame.image.load("python/characters/revival.png"),(35,35))
@@ -131,7 +132,14 @@ class owaspTiet(Ship):
                             self.lasers.remove(laser)
                             self.score+=5
 
+    def draw(self, window):
+        super().draw(window)
+        self.healthbar(window)
 
+    def healthbar(self, window):
+        pygame.draw.rect(window, (255,0,0), (self.x, self.y + self.shipImg.get_height()+10, self.shipImg.get_width(), 10))
+        pygame.draw.rect(window, (0,255,0), (self.x, self.y + self.shipImg.get_height()+10, self.shipImg.get_width() * (self.health/self.maxHealth), 10))
+        
     def shoot(self):
         if self.coolDown==0:
             laser=Laser(self.x-5, self.y, self.laserImg)
@@ -176,6 +184,7 @@ def main():
     velocity=4
 
     fonti=pygame.font.SysFont('stencil',30)
+    exit_font = pygame.font.SysFont('stencil',20)
     lost_font = pygame.font.SysFont("stencil", 60)
 
     enemies=[]
@@ -197,17 +206,22 @@ def main():
     heart_display=False
     heart_time=0
 
+    n_level=False
+
     def window_update():
             #bg,lives,level,score display
             #W,H=window.get_size()---->new W,H for resizable window
             #bg=pygame.transform.scale(pygame.image.load("python/characters/background.jpeg"),(W,H))--->to resize bg
             window.blit(bg, (0, 0))
             livesCount=fonti.render(f"Lives: {lives}",1,(255,255,255))
-            levelCount=fonti.render(f"Levels: {level}",1,(255,255,255))
+            levelCount=fonti.render(f"Level: {level}",1,(255,255,255))
             score_label=fonti.render(f"Score: {player.score}",1,(255,255,255))
+            quit_label = exit_font.render("Press ESC key to exit to main menu", 1, (255,255,255))
+        
             window.blit(livesCount,(10,10))
             window.blit(levelCount,(W-levelCount.get_width()-10,10))
             window.blit(score_label,(W/2-score_label.get_width()/2,10))
+            window.blit(quit_label, (225,575))
 
             #enemy and player display
             for enemy in enemies:
@@ -225,8 +239,9 @@ def main():
                 level_label = lost_font.render("Level Up!",1,(255,255,255))
                 window.blit(level_label, (W/2 - level_label.get_width()/2, H/2-level_label.get_height()/2))
 
-
-
+            #if heart_display and heart_time>0 and level==2:
+            #   window.blit(heart,(W/2,H/2))
+            
             pygame.display.update()
 
     while run:
@@ -251,14 +266,31 @@ def main():
             if level_time>FPS*0.5:
                 level_inc=False
                 level_time=0
+
             else:
                 continue
+
+        #display heart for 3 seconds at level 3 only (yet)
+
+
+        """"
+        if heart_display and level==2 and level_inc==False:
+            heart_time+=1
+            if heart_time>FPS*3:
+                heart_display=False
+                heart_time=0
+            else:
+                continue
+        """
+        
 
         #Enemy spawn
         if len(enemies)==0:
             level+=1
+            heart_display=True
             if level!=1:
                 level_inc=True
+
             wave_length+=1
             for i in range(wave_length):
                 enemy=Enemy(random.randrange(50,W-100),random.randrange(-400,-100),random.choice(["red","blue","green"]))
@@ -267,7 +299,7 @@ def main():
         #To quit game
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
-                return False
+                quit()
 
         #keys for player movement
         keys=pygame.key.get_pressed()
@@ -295,6 +327,9 @@ def main():
             shoot_sound.play(0)
             player.shoot()
 
+        if keys[pygame.K_ESCAPE]:
+            run = False #exit to main menu by pressing ESC key
+            
         #for enemy and enemy laser movement
         for enemy in enemies[:]:
             enemy.move(enemyVel,level)
@@ -313,4 +348,50 @@ def main():
         player.moveLasers(-laserVel,enemies)
         window_update()
 
-main()
+#function to change the game background
+def changebg():
+    global bg, bg2
+    bg3 = bg
+    bg = bg2
+    bg2 = bg3
+
+#function for the main menu/starting screen
+def main_menu():
+    #fonts for main menu
+    title_font = pygame.font.Font("./python/RetroGaming.ttf", 35)
+    title2_font = pygame.font.Font("./python/RetroGaming.ttf", 50)
+    start_font = pygame.font.SysFont("arialblack", 35)
+    bgchange_font = pygame.font.SysFont("arialblack", 20)
+    run = True
+
+    while run:
+        window.blit(bg, (0,0))
+
+        title = title_font.render("Welcome to", 1, (255,255,255))
+        window.blit(title, (W/2 - title.get_width()/2, 100))
+        title2 = title2_font.render("SPACE INVADERS!", 1, (255,255,255))
+        window.blit(title2, (W/2 - title2.get_width()/2, 150))
+
+        start = start_font.render("Press Enter key to begin...", 1, (255,255,255))
+        window.blit(start, (W/2 - start.get_width()/2, H/2))
+        
+        bgchange = bgchange_font.render("Press B to change the background", 1, (255,255,255))
+        window.blit(bgchange, (10, 565))
+        
+        pygame.display.update()
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_b]: #press B to change background
+            changebg()
+            pygame.time.delay(300)
+        
+        if keys[pygame.K_RETURN]: #press enter to start the game
+            main()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+
+    pygame.quit()
+    
+main_menu()
