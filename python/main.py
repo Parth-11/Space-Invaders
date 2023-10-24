@@ -73,9 +73,7 @@ class Ship:
             laser.move(vel)
             if laser.off_screen(H):
                 self.lasers.remove(laser)
-            elif Laser.collision(self,obj):
-                obj.health -=10
-                self.lasers.remove(laser)
+            
 
     def width(self):
         return self.shipImg.get_width()
@@ -119,6 +117,7 @@ class owaspTiet(Ship):
                         if laser in self.lasers:
                             self.lasers.remove(laser)
                             self.score+=5
+      
 
     def draw(self, window):
         super().draw(window)
@@ -158,6 +157,19 @@ class Enemy(Ship):
             self.lasers.append(laser)
             self.coolDown=1
 
+    def moveLasers(self, vel, obj):
+        self.cooldown_counter()
+        for laser in self.lasers:
+            laser.move(vel)
+            if laser.off_screen(H):
+                self.lasers.remove(laser)
+            if collide(laser,obj):
+                obj.health-=5
+                if laser in self.lasers:
+                    self.lasers.remove(laser)
+                
+        
+
 def collide(obj1, obj2):
     offset_x=obj2.x-obj1.x
     offset_y=obj2.y-obj1.y
@@ -171,9 +183,9 @@ def main():
     lives=5
     velocity=4
 
-    fonti=pygame.font.SysFont('stencil',30)
-    exit_font = pygame.font.SysFont('stencil',20)
-    lost_font = pygame.font.SysFont("stencil", 60)
+    fonti=pygame.font.Font('./python/RetroGaming.ttf',25)
+    exit_font = pygame.font.Font('./python/RetroGaming.ttf',10)
+    lost_font = pygame.font.Font("./python/RetroGaming.ttf", 40)
 
     enemies=[]
     wave_length=5
@@ -196,18 +208,24 @@ def main():
 
     n_level=False
 
+    
+
     def window_update():
             #bg,lives,level,score display
             window.blit(bg, (0, 0))
             livesCount=fonti.render(f"Lives: {lives}",1,(255,255,255))
             levelCount=fonti.render(f"Level: {level}",1,(255,255,255))
             score_label=fonti.render(f"Score: {player.score}",1,(255,255,255))
+
+            level_label = lost_font.render("Level Up!",1,(255,255,255))
+            lost_label = lost_font.render("You Lost!!", 1, (255,255,255))
+
             quit_label = exit_font.render("Press ESC key to exit to main menu", 1, (255,255,255))
         
             window.blit(livesCount,(10,10))
             window.blit(levelCount,(W-levelCount.get_width()-10,10))
             window.blit(score_label,(W/2-score_label.get_width()/2,10))
-            window.blit(quit_label, (225,575))
+            window.blit(quit_label, (W/2-quit_label.get_width()/2,H-quit_label.get_height()-5))
 
             #enemy and player display
             for enemy in enemies:
@@ -217,12 +235,10 @@ def main():
 
             #you lost text display
             if lost:
-                lost_label = lost_font.render("You Lost!!", 1, (255,255,255))
                 window.blit(lost_label, (W/2 - lost_label.get_width()/2, H/2-lost_label.get_height()/2))
 
             #level text display
             if level_inc and level!=1:
-                level_label = lost_font.render("Level Up!",1,(255,255,255))
                 window.blit(level_label, (W/2 - level_label.get_width()/2, H/2-level_label.get_height()/2))
 
             #if heart_display and heart_time>0 and level==2:
@@ -233,9 +249,17 @@ def main():
     while run:
         clk.tick(FPS)
         window_update()
+        
 
+        #if health drops down to zero, life is lost
+        if player.health<=0 and lives>0:
+            lives-=1
+            player.health=100
+            if lives==0:
+                player.health=0
+                
         #if player loses,show lost screen for 3 seconds and quit
-        if lives<= 0 or player.health <= 0:
+        if lives<= 0:
             lost=True
             lost_count+=1
         if lost:
@@ -320,9 +344,12 @@ def main():
 
             if random.randrange(0,4*60)==1:
                 enemy.shoot()
+    
+
             if collide(enemy,player):
                 player.health -=10
                 enemies.remove(enemy)
+            
             elif enemy.y + enemy.height()>H:
                 lives-=1
                 enemies.remove(enemy)
@@ -343,23 +370,23 @@ def main_menu():
     #fonts for main menu
     title_font = pygame.font.Font("./python/RetroGaming.ttf", 35)
     title2_font = pygame.font.Font("./python/RetroGaming.ttf", 50)
-    start_font = pygame.font.SysFont("arialblack", 35)
-    bgchange_font = pygame.font.SysFont("arialblack", 20)
+    start_font = pygame.font.Font("./python/RetroGaming.ttf", 20)
+    bgchange_font = pygame.font.Font("./python/RetroGaming.ttf", 15)
     run = True
 
     while run:
         window.blit(bg, (0,0))
 
         title = title_font.render("Welcome to", 1, (255,255,255))
-        window.blit(title, (W/2 - title.get_width()/2, 100))
+        window.blit(title, (W/2 - title.get_width()/2, 150))
         title2 = title2_font.render("SPACE INVADERS!", 1, (255,255,255))
-        window.blit(title2, (W/2 - title2.get_width()/2, 150))
+        window.blit(title2, (W/2 - title2.get_width()/2, 200))
 
         start = start_font.render("Press Enter key to begin...", 1, (255,255,255))
-        window.blit(start, (W/2 - start.get_width()/2, H/2))
+        window.blit(start, (W/2 - start.get_width()/2, 350))
         
         bgchange = bgchange_font.render("Press B to change the background", 1, (255,255,255))
-        window.blit(bgchange, (10, 565))
+        window.blit(bgchange, (10, H-bgchange.get_height()-5))
         
         pygame.display.update()
 
