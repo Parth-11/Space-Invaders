@@ -1,6 +1,7 @@
 import pygame
 import random
 pygame.font.init()
+pygame.mixer.init()
 
 #Window
 W,H=600,600
@@ -25,6 +26,16 @@ bg=pygame.transform.scale(pygame.image.load("python/characters/background.jpeg")
 
 #heart icon
 heart=pygame.transform.scale(pygame.image.load("python/characters/revival.png"),(35,35))
+
+#Sound
+levelup_sound=pygame.mixer.Sound("python/sound/levelup.wav")
+levelup_sound2=pygame.mixer.Sound("python/sound/levelup2.wav")
+powerup_sound=pygame.mixer.Sound("python/sound/powerup.wav")
+shoot_sound=pygame.mixer.Sound("python/sound/shoot.wav")
+shoot_sound2=pygame.mixer.Sound("python/sound/shoot2.wav")
+shoot_sound3=pygame.mixer.Sound("python/sound/shoot3.wav")
+lost_sound=pygame.mixer.Sound("python/sound/you-lost.wav")
+lost_sound2=pygame.mixer.Sound("python/sound/you-lost2.wav")
 
 #Laser class--To display and move lasers on screen,handle collisions with ships
 class Laser:
@@ -224,6 +235,7 @@ def main():
 
         #if player loses,show lost screen for 3 seconds and quit
         if lives<= 0 or player.health <= 0:
+            lost_sound.play(0)
             lost=True
             lost_count+=1
         if lost:
@@ -234,8 +246,9 @@ def main():
 
         #if level increases,show level screen for 1 second
         if level_inc and level!=1:
+            levelup_sound.play(0)
             level_time+=1
-            if level_time>FPS:
+            if level_time>FPS*0.5:
                 level_inc=False
                 level_time=0
             else:
@@ -279,6 +292,7 @@ def main():
             player.y+=velocity #Down-down arrow
 
         if keys[pygame.K_SPACE]:
+            shoot_sound.play(0)
             player.shoot()
 
         #for enemy and enemy laser movement
