@@ -1,15 +1,17 @@
 import pygame
 import random
 pygame.font.init()
+pygame.mixer.init()
 
 #Window
 W,H=600,600
 window=pygame.display.set_mode((W,H))
+#window=pygame.display.set_mode((600,600), pygame.RESIZABLE)--->to make window resizable
 pygame.display.set_caption('OWASP Stops Aliens')
 
 #Load ships
 Enemy1=pygame.transform.scale(pygame.image.load("python/characters/PngItem_490764.png"),(90,90))
-Enemy2=pygame.transform.scale(pygame.image.load("python/characters/PngItem_851324.png"),(45,90))
+Enemy2=pygame.transform.scale(pygame.image.load("python/characters/PngItem_851324.png"),(60,120))
 Enemy3=pygame.transform.scale(pygame.image.load("python/characters/pngwing.com.png"),(90,90))
 Player=pygame.image.load("python/characters/Player.png")
 
@@ -25,6 +27,16 @@ bg2 = pygame.transform.scale(pygame.image.load("python/characters/background.jpe
 
 #heart icon
 heart=pygame.transform.scale(pygame.image.load("python/characters/revival.png"),(35,35))
+
+#Sound
+levelup_sound=pygame.mixer.Sound("python/sound/levelup.wav")
+levelup_sound2=pygame.mixer.Sound("python/sound/levelup2.wav")
+powerup_sound=pygame.mixer.Sound("python/sound/powerup.wav")
+shoot_sound=pygame.mixer.Sound("python/sound/shoot.wav")
+shoot_sound2=pygame.mixer.Sound("python/sound/shoot2.wav")
+shoot_sound3=pygame.mixer.Sound("python/sound/shoot3.wav")
+lost_sound=pygame.mixer.Sound("python/sound/you-lost.wav")
+lost_sound2=pygame.mixer.Sound("python/sound/you-lost2.wav")
 
 #Laser class--To display and move lasers on screen,handle collisions with ships
 class Laser:
@@ -212,6 +224,8 @@ def main():
 
     def window_update():
             #bg,lives,level,score display
+            #W,H=window.get_size()---->new W,H for resizable window
+            #bg=pygame.transform.scale(pygame.image.load("python/characters/background.jpeg"),(W,H))--->to resize bg
             window.blit(bg, (0, 0))
             livesCount=fonti.render(f"Lives: {lives}",1,(255,255,255))
             levelCount=fonti.render(f"Level: {level}",1,(255,255,255))
@@ -260,6 +274,7 @@ def main():
                 
         #if player loses,show lost screen for 3 seconds and quit
         if lives<= 0:
+            lost_sound.play(0)
             lost=True
             lost_count+=1
         if lost:
@@ -270,8 +285,9 @@ def main():
 
         #if level increases,show level screen for 1 second
         if level_inc and level!=1:
+            levelup_sound.play(0)
             level_time+=1
-            if level_time>FPS:
+            if level_time>FPS*0.5:
                 level_inc=False
                 level_time=0
 
@@ -332,6 +348,7 @@ def main():
             player.y+=velocity #Down-down arrow
 
         if keys[pygame.K_SPACE]:
+            shoot_sound.play(0)
             player.shoot()
 
         if keys[pygame.K_ESCAPE]:
